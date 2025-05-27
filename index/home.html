@@ -1,0 +1,156 @@
+<!-- index/home.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fishing+</title>
+
+  <!-- Tailwind & Outfit 폰트 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-sA+e2nZp21jm4YtyVSf2u7+c0rKpEV+F5ptOVN4sy3s="
+    crossorigin=""
+  />
+
+  <!-- 분리된 CSS -->
+  <link rel="stylesheet" href="../css/home.css" />
+</head>
+<body class="body-wrapper">
+  <header>
+    <h1>
+      <h1><a href="home.html">Fishing+</a></h1>
+    </h1>
+    <nav>
+      <button id="loginBtn">로그인</button>
+      <a href="board.html" class="signup">게시판</a>
+    </nav>
+  </header>
+
+  <div id="main">
+    <!-- ① 검색바 -->
+    <div id="searchBar">
+      <input
+        type="text"
+        id="mapSearch"
+        placeholder="물고기 종류 또는 위치 검색..."
+      />
+    </div>
+
+    <!-- ② 지도 렌더링 -->
+    <div id="map"></div>
+
+    <!-- ③ 하단 정보 박스: 날씨 위젯 + 물고기 정보 -->
+    <div class="info-container flex gap-4">
+      <!-- 날씨 위젯 -->
+      <div class="info-box bg-white/20 p-4 rounded-lg shadow-lg flex-1">
+        <div class="weather-widget-container">
+          <div class="weather-widget">
+            <div id="cloud-container" class="absolute top-0 right-0 w-36 h-36 sm:w-40 sm:h-40 z-30 cursor-pointer rounded-tr-3xl overflow-hidden">
+              <div id="cloud-tooltip" class="tooltip absolute top-20 right-2 sm:top-24 sm:right-4 bg-black/70 text-white px-3 py-1.5 rounded-md text-xs opacity-0 transition-opacity duration-300 pointer-events-none z-40 shadow-lg">
+                Click clouds for a surprise!
+                <div class="absolute -top-1 right-3 w-3 h-3 bg-black/70 transform rotate-45"></div>
+              </div>
+            </div>
+            <div class="relative z-20">
+              <div id="dateTime" class="date-time text-sm font-light opacity-80 mb-1 tracking-wide animate-fadeInUp"></div>
+              <div class="current-weather flex items-center mb-2">
+                <div class="weather-icon-main text-5xl mr-3">⛅</div>
+                <div class="temp text-5xl font-semibold">
+                  <span id="temperature" class="bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300 animate-fadeInScaleUp delay-100">8°C</span>
+                </div>
+              </div>
+              <div id="location" class="location text-lg opacity-90 mb-4 tracking-wide animate-fadeInUp delay-200">New York, USA</div>
+              <div class="sun-info bg-black/30 backdrop-blur-sm rounded-2xl p-3 sm:p-4 flex justify-between items-center mb-4 border border-white/10 shadow-md animate-fadeInUp delay-300">
+                <div class="sunrise text-center">
+                  <div class="sun-icon text-xl mb-1">☀️</div>
+                  <div id="sunriseTime" class="text-xs opacity-80">6:14 am</div>
+                </div>
+                <div id="dayLength" class="day-length text-center text-sm opacity-90">11 h 42 m</div>
+                <div class="sunset text-center">
+                  <div class="sun-icon text-xl mb-1">🌙</div>
+                  <div id="sunsetTime" class="text-xs opacity-80">5:56 pm</div>
+                </div>
+              </div>
+              <div class="precipitation bg-white/10 backdrop-blur-sm rounded-xl p-3 flex items-center mb-4 border border-white/5 shadow-sm animate-fadeInUp delay-400">
+                <div class="precip-icon text-2xl mr-2 text-blue-300 drop-shadow-lg animate-gentleBob">🌧️</div>
+                <div id="precipitationChance" class="text-sm opacity-90">Rain 85%</div>
+              </div>
+              <div class="humidity-wind flex justify-between text-sm opacity-90 mb-5 animate-fadeInUp delay-500">
+                <div id="humidity">Humidity: 68%</div>
+                <div id="windSpeed">Wind: 12 km/h</div>
+              </div>
+              <div class="forecast flex flex-nowrap justify-between pb-2">
+                <!-- 예보 카드 4개 -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 물고기 정보 -->
+      <div class="info-box bg-white/20 p-4 rounded-lg shadow-lg flex-1">
+        <h2 class="text-xl mb-2">물고기 정보</h2>
+        <p>최근 어획된 물고기 종류 및 비율</p>
+        <div class="flex gap-2 mt-2">
+          <img src="https://via.placeholder.com/100?text=광어" alt="광어" class="rounded-md" />
+          <img src="https://via.placeholder.com/100?text=참돔" alt="참돔" class="rounded-md" />
+          <img src="https://via.placeholder.com/100?text=농어" alt="농어" class="rounded-md" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 로그인 모달 -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h3>로그인</h3>
+      <label for="userId">ID</label>
+      <input id="userId" type="text" placeholder="아이디 입력" />
+      <label for="userPw">PW</label>
+      <input id="userPw" type="password" placeholder="비밀번호 입력" />
+      <div class="buttons">
+        <button class="cancel" id="cancelBtn">취소</button>
+        <button class="confirm" id="confirmBtn">확인</button>
+      </div>
+      <div class="modal-links">
+        <a href="signup.html">회원가입</a>
+        <span class="separator">|</span>
+        <a href="find.html">ID/PW 찾기</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-o9N1j7kPT9b7yjLz2Lxyr5QAO/JNf3jvYh6Zf+RsiHA="
+    crossorigin=""
+  ></script>
+
+  <!-- 로그인 모달 토글 스크립트 -->
+  <script>
+    document.getElementById('loginBtn').addEventListener('click', () => {
+      document.getElementById('modalOverlay').style.display = 'flex';
+    });
+    document.getElementById('cancelBtn').addEventListener('click', () => {
+      document.getElementById('modalOverlay').style.display = 'none';
+    });
+    document.getElementById('confirmBtn').addEventListener('click', () => {
+      console.log(`로그인 시도: ID=${document.getElementById('userId').value}`);
+      document.getElementById('modalOverlay').style.display = 'none';
+    });
+  </script>
+
+  <!-- 분리된 JS -->
+  <script src="../js/home.js" type="module"></script>
+</body>
+</html>
