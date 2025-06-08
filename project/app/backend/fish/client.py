@@ -40,8 +40,8 @@ class FishAPIClient:
         url = BASE_URL + WFS_ENDPOINT
         params = {
             PARAM_SERVICE_KEY: self.service_key,
-            #PARAM_TYPE_NAME: type_name or DEFAULT_TYPE_NAME,
-            #PARAM_BBOX: bbox,
+            PARAM_TYPE_NAME: type_name or DEFAULT_TYPE_NAME,
+            PARAM_BBOX: bbox,
             PARAM_MAX_FEATURES: max_features or DEFAULT_MAX_FEATURES,
         }
         resp = requests.get(url, params=params)

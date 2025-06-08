@@ -5,6 +5,7 @@ import env
 
 from weather.service import WeatherService
 from fish.service import FishService
+from fishing_spot.service import FishingSpotService
 
 def main():
     API_KEY = env.EnvironmentKey.KMA_SERVICE_KEY
@@ -60,6 +61,10 @@ def main():
     except Exception as e:
         # FishAPIClient.get_wfs_features()에서 던진 Exception 포함
         print(f"[Error] WFS 조회 실패: {e}")
+
+    # -----------------------------------------------------------------------------
+    # service = FishingSpotService()
+    # print(service.get_all_spots())
 
 if __name__ == "__main__":
     main()

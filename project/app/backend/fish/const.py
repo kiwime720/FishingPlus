@@ -19,7 +19,8 @@ PARAM_MAX_FEATURES = "maxFeatures" # 최대 피처 개수 (기본 10, 최대 500
 # ─────────────────────────────────────────────────────────────────────────────
 #  기본값 (옵션 파라미터 디폴트)
 # ─────────────────────────────────────────────────────────────────────────────
-DEFAULT_TYPE_NAME    = "mv_map_ecpe_fishes_point"
+# DEFAULT_TYPE_NAME    = "mv_map_ecpe_fishes_point"
+DEFAULT_TYPE_NAME    = "mv_map_ntee_fishes_point" # type_name 수정
 DEFAULT_MAX_FEATURES = 20
 DEFAULT_SRS          = "EPSG:5186"
 
