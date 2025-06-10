@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 
 DEBUG = False
 
-from weather.const import (
+from .const import (
     KMA_URL,
     KMA_MID_URL,
     CAST_F,
