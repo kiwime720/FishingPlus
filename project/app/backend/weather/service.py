@@ -13,9 +13,9 @@ class WeatherService:
         api_key: str,
         grid_x: int,
         grid_y: int,
-        reg_id_land: str,
-        reg_id_temp: str,
-        reg_id_sea: str,
+        reg_id_land: str | None,
+        reg_id_temp: str | None,
+        reg_id_sea: str | None,
     ):
         self.client = KMAClient(
             api_key,
@@ -46,18 +46,31 @@ class WeatherService:
             print(f"[Error][단기] {e}")
 
         # 중기 예보
-        try:
-            raw_mid_ground = self.client.fetch_mid_land()
-            raw_mid_ta = self.client.fetch_mid_ta()
-            raw_mid_sea = self.client.fetch_mid_sea()
-            mid_data_ground = parse_mid_land(raw_mid_ground)
-            mid_data_ta = parse_mid_ta(raw_mid_ta)
-            mid_data_sea = parse_mid_sea(raw_mid_sea)
-        except Exception as e:
-            mid_data_ground = {}
-            mid_data_ta = {}
-            mid_data_sea = {}
-            print(f"[Error][중기] {e}")
+        mid_data_ground, mid_data_ta, mid_data_sea = {}, {}, {}
+
+        if self.client.reg_id_land:
+            try:
+                raw_mid_ground = self.client.fetch_mid_land()
+                mid_data_ground = parse_mid_land(raw_mid_ground)
+            except Exception as e:
+                mid_data_ground = {}
+                print(f"[Error][중기 육상] {e}")
+
+        if self.client.reg_id_temp:
+            try:
+                raw_mid_ta = self.client.fetch_mid_ta()
+                mid_data_ta = parse_mid_ta(raw_mid_ta)
+            except Exception as e:
+                mid_data_ta = {}
+                print(f"[Error][중기 기온] {e}")
+
+        if self.client.reg_id_sea:
+            try:
+                raw_mid_sea = self.client.fetch_mid_sea()
+                mid_data_sea = parse_mid_sea(raw_mid_sea)
+            except Exception as e:
+                mid_data_sea = {}
+                print(f"[Error][중기 해상] {e}")
 
         out["ultra"] = ultra_data
         out["short"] = short_data

@@ -23,9 +23,6 @@ class FishingWeatherService:
         temp_code = self.spot_service.get_mid_temp_code_by_name(name)
         sea_code = self.spot_service.get_mid_sea_code_by_name(name)
 
-        if land_code is None or temp_code is None or sea_code is None:
-            return {"error": "중기예보용 지역코드를 찾을 수 없습니다."}
-
         # 날씨 정보 요청
         service = WeatherService(
             self.api_key,

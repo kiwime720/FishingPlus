@@ -65,9 +65,9 @@ class KMAClient:
         api_key: str,
         grid_x: int,
         grid_y: int,
-        reg_id_land: str,
-        reg_id_temp: str,
-        reg_id_sea: str,
+        reg_id_land: str | None,
+        reg_id_temp: str | None,
+        reg_id_sea: str | None,
     ):
         self.api_key = api_key
         self.grid_x = grid_x
@@ -98,6 +98,8 @@ class KMAClient:
         return resp.json()
 
     def fetch_mid_land(self):
+        if not self.reg_id_land:
+            raise ValueError("reg_id_land is None")
         date, time = get_base_datetime_mid()
         tmFc = f"{date}{time}"
         url = KMA_MID_URL.format(CAST_ML, self.api_key, self.reg_id_land, tmFc[:8], tmFc[8:])
@@ -106,6 +108,8 @@ class KMAClient:
         return resp.json()
 
     def fetch_mid_ta(self):
+        if not self.reg_id_temp:
+            raise ValueError("reg_id_temp is None")
         date, time = get_base_datetime_mid()
         tmFc = f"{date}{time}"
         url = KMA_MID_URL.format(CAST_MT, self.api_key, self.reg_id_temp, tmFc[:8], tmFc[8:])
@@ -114,6 +118,8 @@ class KMAClient:
         return resp.json()
 
     def fetch_mid_sea(self):
+        if not self.reg_id_sea:
+            raise ValueError("reg_id_sea is None")
         date, time = get_base_datetime_mid()
         tmFc = f"{date}{time}"
         url = KMA_MID_URL.format(CAST_MS, self.api_key, self.reg_id_sea, tmFc[:8], tmFc[8:])
