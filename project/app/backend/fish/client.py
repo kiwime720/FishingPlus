@@ -30,7 +30,7 @@ class FishAPIClient:
     ) -> str:
         """
         WFS 조회: 지정한 bbox, 피처 타입, 최대 개수 등에 따라 피처 정보(XML/JSON) 반환.
-        • bbox: "miny,minx,maxy,maxx"
+        • bbox: "minx,miny,maxx,maxy"
         • type_name: 피처 타입명(쉼표 구분, 기본 DEFAULT_TYPE_NAME)
         • max_features: 최대 개수 (기본 DEFAULT_MAX_FEATURES)
         • srs: 좌표계 (기본 DEFAULT_SRS)

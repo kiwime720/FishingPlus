@@ -20,7 +20,7 @@ class FishService:
     ) -> List[Dict[str, Any]]:
         """
         WFS를 통해 피처(속성 + 좌표) 리스트를 파싱하여 반환.
-        • bbox: "miny,minx,maxy,maxx"
+        • bbox: "minx,miny,maxx,maxy"
         • type_name: 피처 타입명 (기본 DEFAULT_TYPE_NAME)
         • max_features: 최대 개수 (기본 DEFAULT_MAX_FEATURES)
         • srs: 좌표계 (기본 DEFAULT_SRS)

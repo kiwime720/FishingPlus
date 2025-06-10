@@ -16,6 +16,7 @@ class FishInfoService:
 
         # bbox 계산 (반경 5km 기준)
         bbox = bbox_from_x_y_radius(lat, lon, radius_km=5)
+        # bbox = 314548.9311225004,401742.29949240043,320867.0145135768,409072.0397406582
 
         # # 물고기 API 조회
         # return self.fish_service.get_features(
