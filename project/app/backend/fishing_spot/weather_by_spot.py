@@ -18,12 +18,22 @@ class FishingWeatherService:
         # 위경도를 기상청 격자 좌표로 변환
         nx, ny = x_y_to_kma_grid(lat, lon)
 
-        # 낚시터 이름으로 중기예보 지역코드 얻기
-        region_code = self.spot_service.get_mid_code_by_name(name)
-        if region_code is None:
+        # 낚시터 이름으로 중기예보 지역코드 얻기 (육상/기온/해상)
+        land_code = self.spot_service.get_mid_land_code_by_name(name)
+        temp_code = self.spot_service.get_mid_temp_code_by_name(name)
+        sea_code = self.spot_service.get_mid_sea_code_by_name(name)
+
+        if land_code is None or temp_code is None or sea_code is None:
             return {"error": "중기예보용 지역코드를 찾을 수 없습니다."}
 
         # 날씨 정보 요청
-        service = WeatherService(self.api_key, nx, ny, region_code)
+        service = WeatherService(
+            self.api_key,
+            nx,
+            ny,
+            reg_id_land=land_code,
+            reg_id_temp=temp_code,
+            reg_id_sea=sea_code,
+        )
         forecasts = service.get_all_forecasts()
         return forecasts

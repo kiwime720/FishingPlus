@@ -18,6 +18,7 @@ CAST_F  = "getUltraSrtFcst"   # 초단기 예보
 CAST_V  = "getVilageFcst"     # 단기(동네) 예보
 CAST_ML = "getMidLandFcst"    # 중기 육상 예보
 CAST_MT = "getMidTa"          # 중기 기온 예보 (필요하면)
+CAST_MS = "getMidSeaFcst"    # 중기 해상 예보
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  JSON 파싱에 사용할 Key 이름
