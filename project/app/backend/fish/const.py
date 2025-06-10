@@ -13,13 +13,14 @@ WFS_ENDPOINT = "/wfs/getFishesPointWFS"
 # ─────────────────────────────────────────────────────────────────────────────
 PARAM_SERVICE_KEY  = "serviceKey"
 PARAM_TYPE_NAME    = "typeName"    # 피처 타입명(쉼표 구분)
-PARAM_BBOX         = "bbox"        # "miny,minx,maxy,maxx"
+PARAM_BBOX         = "bbox"        # "minx,miny,maxx,maxy"
 PARAM_MAX_FEATURES = "maxFeatures" # 최대 피처 개수 (기본 10, 최대 500)
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  기본값 (옵션 파라미터 디폴트)
 # ─────────────────────────────────────────────────────────────────────────────
-DEFAULT_TYPE_NAME    = "mv_map_ecpe_fishes_point"
+# DEFAULT_TYPE_NAME    = "mv_map_ecpe_fishes_point"
+DEFAULT_TYPE_NAME    = "mv_map_ntee_fishes_point" # type_name 수정
 DEFAULT_MAX_FEATURES = 20
 DEFAULT_SRS          = "EPSG:5186"
 

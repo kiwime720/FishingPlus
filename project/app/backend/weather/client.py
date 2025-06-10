@@ -60,11 +60,21 @@ def get_base_datetime_mid():
 
 
 class KMAClient:
-    def __init__(self, api_key: str, grid_x: int, grid_y: int, reg_id: str):
+    def __init__(
+        self,
+        api_key: str,
+        grid_x: int,
+        grid_y: int,
+        reg_id_land: str | None,
+        reg_id_temp: str | None,
+        reg_id_sea: str | None,
+    ):
         self.api_key = api_key
         self.grid_x = grid_x
         self.grid_y = grid_y
-        self.reg_id = reg_id
+        self.reg_id_land = reg_id_land
+        self.reg_id_temp = reg_id_temp
+        self.reg_id_sea = reg_id_sea
 
     def fetch_ultra(self):
         date, time = get_base_datetime_ultra()
@@ -84,21 +94,35 @@ class KMAClient:
             print(f"Response URL: {resp.url}")
             print(f"Response content: {resp.text[:200]}...")
             print(f"Response headers: {resp.headers}")
-        print(resp.json())
+        #print(resp.json())
         return resp.json()
 
     def fetch_mid_land(self):
+        if not self.reg_id_land:
+            raise ValueError("reg_id_land is None")
         date, time = get_base_datetime_mid()
         tmFc = f"{date}{time}"
-        url = KMA_MID_URL.format(CAST_ML, self.api_key, self.reg_id, tmFc[:8], tmFc[8:])
+        url = KMA_MID_URL.format(CAST_ML, self.api_key, self.reg_id_land, tmFc[:8], tmFc[8:])
         resp = requests.get(url)
         resp.raise_for_status()
         return resp.json()
 
     def fetch_mid_ta(self):
+        if not self.reg_id_temp:
+            raise ValueError("reg_id_temp is None")
         date, time = get_base_datetime_mid()
         tmFc = f"{date}{time}"
-        url = KMA_MID_URL.format(CAST_MT, self.api_key, self.reg_id, tmFc[:8], tmFc[8:])
+        url = KMA_MID_URL.format(CAST_MT, self.api_key, self.reg_id_temp, tmFc[:8], tmFc[8:])
+        resp = requests.get(url)
+        resp.raise_for_status()
+        return resp.json()
+
+    def fetch_mid_sea(self):
+        if not self.reg_id_sea:
+            raise ValueError("reg_id_sea is None")
+        date, time = get_base_datetime_mid()
+        tmFc = f"{date}{time}"
+        url = KMA_MID_URL.format(CAST_MS, self.api_key, self.reg_id_sea, tmFc[:8], tmFc[8:])
         resp = requests.get(url)
         resp.raise_for_status()
         return resp.json()

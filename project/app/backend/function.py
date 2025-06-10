@@ -245,8 +245,8 @@ def bbox_from_x_y_radius(x: float, y: float, radius_km: float) -> str:
     miny = y_5186 - r_m
     maxy = y_5186 + r_m
 
-    # 4) "miny,minx,maxy,maxx" 순서
-    return f"{miny},{minx},{maxy},{maxx}"
+    # 4) "minx,miny,maxx,maxy" 순서
+    return f"{minx},{miny},{maxx},{maxy}"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

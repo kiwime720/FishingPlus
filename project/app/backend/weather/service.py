@@ -1,9 +1,30 @@
 from weather.client import KMAClient
-from weather.parser import parse_ultra_short, parse_short_term, parse_mid_land
+from weather.parser import (
+    parse_ultra_short,
+    parse_short_term,
+    parse_mid_land,
+    parse_mid_ta,
+    parse_mid_sea,
+)
 
 class WeatherService:
-    def __init__(self, api_key: str, grid_x: int, grid_y: int, reg_id: str):
-        self.client = KMAClient(api_key, grid_x, grid_y, reg_id)
+    def __init__(
+        self,
+        api_key: str,
+        grid_x: int,
+        grid_y: int,
+        reg_id_land: str | None,
+        reg_id_temp: str | None,
+        reg_id_sea: str | None,
+    ):
+        self.client = KMAClient(
+            api_key,
+            grid_x,
+            grid_y,
+            reg_id_land=reg_id_land,
+            reg_id_temp=reg_id_temp,
+            reg_id_sea=reg_id_sea,
+        )
 
     def get_all_forecasts(self) -> dict:
         out = {}
@@ -24,16 +45,39 @@ class WeatherService:
             short_data = {}
             print(f"[Error][단기] {e}")
 
-        # 중기(육상)
-        try:
-            raw_mid = self.client.fetch_mid_land()
-            mid_data = parse_mid_land(raw_mid)
-        except Exception as e:
-            mid_data = {}
-            print(f"[Error][중기] {e}")
+        # 중기 예보
+        mid_data_ground, mid_data_ta, mid_data_sea = {}, {}, {}
+
+        if self.client.reg_id_land:
+            try:
+                raw_mid_ground = self.client.fetch_mid_land()
+                mid_data_ground = parse_mid_land(raw_mid_ground)
+            except Exception as e:
+                mid_data_ground = {}
+                print(f"[Error][중기 육상] {e}")
+
+        if self.client.reg_id_temp:
+            try:
+                raw_mid_ta = self.client.fetch_mid_ta()
+                mid_data_ta = parse_mid_ta(raw_mid_ta)
+            except Exception as e:
+                mid_data_ta = {}
+                print(f"[Error][중기 기온] {e}")
+
+        if self.client.reg_id_sea:
+            try:
+                raw_mid_sea = self.client.fetch_mid_sea()
+                mid_data_sea = parse_mid_sea(raw_mid_sea)
+            except Exception as e:
+                mid_data_sea = {}
+                print(f"[Error][중기 해상] {e}")
 
         out["ultra"] = ultra_data
         out["short"] = short_data
-        out["mid"]   = mid_data
+        out["mid"] = {
+            "land": mid_data_ground,
+            "ta": mid_data_ta,
+            "sea": mid_data_sea,
+        }
 
         return out
