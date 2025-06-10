@@ -1,35 +1,23 @@
-// js/home.js
+// ✅ home.js (업데이트 버전) - 사용자 마커 저장 제거 + 날씨 및 어종 정보 지도 아래 표시
+
 import * as THREE from "https://esm.sh/three";
 import { OrbitControls } from "https://esm.sh/three/examples/jsm/controls/OrbitControls.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-  // 1) 날짜/시간 업데이트
-  function updateDateTime() {
-    const now = new Date();
-    const optsD = { weekday: "long" };
-    const optsT = { hour: "2-digit", minute: "2-digit", hour12: false };
-    const text = `${now.toLocaleDateString(undefined, optsD)}, ${now.toLocaleTimeString([], optsT)}`;
-    document.querySelectorAll(".date-time").forEach(el => el.textContent = text);
-  }
-  updateDateTime();
-  setInterval(updateDateTime, 60000);
-
-  // 2) 지도 초기화 (휠 줌 활성화)
   const map = L.map("map", { scrollWheelZoom: true }).setView([36.5, 127.8], 7);
 
-  // 3) 베이스 레이어 (OSM)
+  // OSM 기본 레이어
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(map);
 
-  // 4) 실내/선상 오버레이 레이어 정의
+  // 오버레이 레이어
   const indoorLayer = L.tileLayer("/api/map/indoor/{z}/{x}/{y}.png");
-  const boatLayer  = L.tileLayer("/api/map/boat/{z}/{x}/{y}.png");
+  const boatLayer = L.tileLayer("/api/map/boat/{z}/{x}/{y}.png");
   let currentOverlay = indoorLayer.addTo(map);
 
-  // 토글 버튼 이벤트
   document.querySelectorAll(".mode-btn").forEach(btn => {
-    btn.addEventListener("click", function() {
+    btn.addEventListener("click", function () {
       document.querySelectorAll(".mode-btn").forEach(b => b.classList.remove("active"));
       this.classList.add("active");
       map.removeLayer(currentOverlay);
@@ -39,61 +27,79 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // 5) 미리 지정된 5개 스폿 (처음엔 숨김)
-  const spotsData = [
-    { coords: [36.52, 127.85], name: "포인트 A" },
-    { coords: [36.48, 127.75], name: "포인트 B" },
-    { coords: [36.55, 127.95], name: "포인트 C" },
-    { coords: [36.45, 127.90], name: "포인트 D" },
-    { coords: [36.50, 127.70], name: "포인트 E" }
-  ];
-  const spotLayerGroup = L.layerGroup(spotsData.map(s =>
-    L.marker(s.coords).bindPopup(`<strong>${s.name}</strong>`)
-  ));
+  // ✅ 저장된 마커 불러오기 (처음 로딩 시)
+  let markers = [];
+  fetch('/api/spots')
+    .then(res => res.json())
+    .then(spots => {
+      markers = spots.map(s => addMarker(s.lat, s.lng, s.name));
+    });
 
-  map.on("zoomend", () => {
-    const z = map.getZoom();
-    if (z >= 3) {
-      if (!map.hasLayer(spotLayerGroup)) map.addLayer(spotLayerGroup);
-    } else {
-      if (map.hasLayer(spotLayerGroup)) map.removeLayer(spotLayerGroup);
-    }
-  });
+  // ✅ 마커 생성 함수 (줌 레벨에 따라 크기 자동 설정)
+  function addMarker(lat, lng, name) {
+    const zoom = map.getZoom();
+    const size = zoom * 2 + 10;
+    const icon = L.icon({
+      iconUrl: '/images/fish.png',
+      iconSize: [size, size]
+    });
+    const marker = L.marker([lat, lng], { icon }).addTo(map);
+    marker.bindPopup(`<strong>${name}</strong>`);
 
-  // 6) 확대 시마다 랜덤 스폿 생성 및 클릭 시 infoWindow
-  let prevZoom = map.getZoom();
-  map.on("zoomend", () => {
-    const newZoom = map.getZoom();
-    if (newZoom > prevZoom) {
-      const bounds = map.getBounds();
-      const count = Math.floor(Math.random() * 11) + 10; // 10~20개
-      for (let i = 0; i < count; i++) {
-        const lat = bounds.getSouth() + Math.random() * (bounds.getNorth() - bounds.getSouth());
-        const lng = bounds.getWest()  + Math.random() * (bounds.getEast()  - bounds.getWest());
-        const marker = L.marker([lat, lng]).addTo(map);
-
-        marker.on("click", () => {
-          const depth   = (Math.random() * 30 + 5).toFixed(1) + " m";
-          const temp    = (Math.random() * 15 + 10).toFixed(1) + " °C";
-          const species = ["광어","참돔","농어","전어","도미"];
-          const fish    = species[Math.floor(Math.random() * species.length)];
+    marker.on("click", () => {
+      fetch(`/api/info?lat=${lat}&lon=${lng}`)
+        .then(res => res.json())
+        .then(info => {
           document.getElementById("infoContent").innerHTML = `
-            <strong>수심:</strong> ${depth}<br/>
-            <strong>수온:</strong> ${temp}<br/>
-            <strong>어종:</strong> ${fish}
+            <strong>수심:</strong> ${info.depth}<br/>
+            <strong>수온:</strong> ${info.temp}<br/>
+            <strong>어종:</strong> ${info.fish}
           `;
           document.getElementById("infoWindow").classList.remove("hidden");
+
+          // 지도 아래 날씨 및 어종 정보 출력
+          const summaryBox = document.getElementById("summaryBox");
+          if (summaryBox) {
+            summaryBox.innerHTML = `
+              <div class="bg-white/20 backdrop-blur-md p-4 rounded-lg shadow-lg text-white">
+                <h3 class="text-xl font-semibold mb-2">선택한 포인트 정보</h3>
+                <p><strong>위도:</strong> ${lat.toFixed(4)}, <strong>경도:</strong> ${lng.toFixed(4)}</p>
+                <p><strong>수심:</strong> ${info.depth}</p>
+                <p><strong>수온:</strong> ${info.temp}</p>
+                <p><strong>주요 어종:</strong> ${info.fish}</p>
+              </div>
+            `;
+          }
         });
-      }
-    }
-    prevZoom = newZoom;
+    });
+
+    return marker;
+  }
+
+  // ✅ 줌 변경 시 마커 크기 조절
+  map.on('zoomend', () => {
+    const zoom = map.getZoom();
+    markers.forEach(m => map.removeLayer(m));
+    fetch('/api/spots')
+      .then(res => res.json())
+      .then(spots => {
+        markers = spots.map(s => addMarker(s.lat, s.lng, s.name));
+      });
   });
 
-  // 7) infoWindow 닫기
+  // info 창 닫기
   document.getElementById("infoClose").addEventListener("click", () => {
     document.getElementById("infoWindow").classList.add("hidden");
   });
 
-  // 8) 테스트 마커
-  L.marker([36.5, 127.8]).addTo(map).bindPopup("테스트 마커").openPopup();
+  // 시간 표시
+  function updateDateTime() {
+    const now = new Date();
+    const optsD = { weekday: "long" };
+    const optsT = { hour: "2-digit", minute: "2-digit", hour12: false };
+    const text = `${now.toLocaleDateString(undefined, optsD)}, ${now.toLocaleTimeString([], optsT)}`;
+    document.querySelectorAll(".date-time").forEach(el => el.textContent = text);
+  }
+  updateDateTime();
+  setInterval(updateDateTime, 60000);
 });
