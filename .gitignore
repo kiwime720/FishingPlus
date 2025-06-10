@@ -5,10 +5,10 @@ venv/
 
 # python cache
 project/app/__pycache__/
+__pycache__/
 
 # env
-.env
-
+#.env
 
 # IDE
 .vscode/
