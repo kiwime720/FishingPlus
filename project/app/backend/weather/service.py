@@ -8,8 +8,23 @@ from weather.parser import (
 )
 
 class WeatherService:
-    def __init__(self, api_key: str, grid_x: int, grid_y: int, reg_id: str):
-        self.client = KMAClient(api_key, grid_x, grid_y, reg_id)
+    def __init__(
+        self,
+        api_key: str,
+        grid_x: int,
+        grid_y: int,
+        reg_id_land: str,
+        reg_id_temp: str,
+        reg_id_sea: str,
+    ):
+        self.client = KMAClient(
+            api_key,
+            grid_x,
+            grid_y,
+            reg_id_land=reg_id_land,
+            reg_id_temp=reg_id_temp,
+            reg_id_sea=reg_id_sea,
+        )
 
     def get_all_forecasts(self) -> dict:
         out = {}
