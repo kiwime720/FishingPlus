@@ -1,5 +1,5 @@
-from weather.client import KMAClient
-from weather.parser import (
+from .client import KMAClient
+from .parser import (
     parse_ultra_short,
     parse_short_term,
     parse_mid_land,
