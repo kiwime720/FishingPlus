@@ -107,7 +107,7 @@ class KMAClient:
     def fetch_mid_sea(self):
         date, time = get_base_datetime_mid()
         tmFc = f"{date}{time}"
-        url = KMA_MID_URL.format(CAST_ML, self.api_key, self.reg_id, tmFc[:8], tmFc[8:])
+        url = KMA_MID_URL.format(CAST_MS, self.api_key, self.reg_id, tmFc[:8], tmFc[8:])
         resp = requests.get(url)
         resp.raise_for_status()
         return resp.json()
