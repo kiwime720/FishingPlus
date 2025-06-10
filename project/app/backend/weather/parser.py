@@ -54,7 +54,8 @@ def parse_ultra_short(raw_json: dict) -> dict[str, dict]:
 def parse_short_term(raw_json: dict) -> dict[str, dict]:
     return parse_ultra_short(raw_json)
 
-def parse_mid_land(raw_json: dict) -> dict[str, dict]:
+def _parse_mid_common(raw_json: dict) -> dict[str, dict]:
+    """Parse mid-term forecast data shared by land/temperature/sea APIs."""
     items = _extract_items_list(raw_json)
     if not isinstance(items, list) or len(items) == 0:
         return {}
@@ -62,37 +63,22 @@ def parse_mid_land(raw_json: dict) -> dict[str, dict]:
     day_data = items[0]
     result: dict[str, dict] = {}
 
-    # 중기 예보의 “기준일”은 외부에서 제공되지 않으므로,
-    # parser 입장에서는 오늘 날짜를 기준으로 day_offset 계산
     base_date = datetime.now().date()
 
     for key_code, raw_val in day_data.items():
-        m = re.match(r"([a-zA-Z]+)(\d+)(?:Am|Pm)?", key_code)
+        code_key = key_code if key_code in CATEGORY_CODE else key_code.upper()
+        if code_key not in CATEGORY_CODE:
+            continue
+
+        m = re.search(r"(\d+)", key_code)
         if not m:
             continue
-        cat_part, day_offset = m.groups()
+        offset = int(m.group(1))
 
-        # 중기에서 taMin → TMN, taMax → TMX, sky→ SKY, rnSt→ POP 등으로 매핑
-        cat_upper = cat_part.upper()
-        if cat_upper.startswith("TAMIN"):
-            code = "TMN"
-        elif cat_upper.startswith("TAMAX"):
-            code = "TMX"
-        elif cat_upper.startswith("SKY"):
-            code = "SKY"
-        elif cat_upper.startswith("RNST"):
-            code = "POP"
-        else:
-            code = cat_upper  # 필요에 따라 추가 mapping
-
-        if code not in CATEGORY_CODE:
-            continue
-
-        offset = int(day_offset)
         target_date = base_date + timedelta(days=offset)
         date_str = target_date.strftime("%Y%m%d")
 
-        field_name = CATEGORY_CODE[code][0]
+        field_name = CATEGORY_CODE[code_key][0]
         try:
             if raw_val is None or raw_val == "" or raw_val == "-":
                 val = None
@@ -100,7 +86,7 @@ def parse_mid_land(raw_json: dict) -> dict[str, dict]:
                 val = int(raw_val)
             else:
                 val = float(raw_val)
-        except:
+        except Exception:
             val = raw_val
 
         if date_str not in result:
@@ -108,3 +94,15 @@ def parse_mid_land(raw_json: dict) -> dict[str, dict]:
         result[date_str][field_name] = val
 
     return result
+
+
+def parse_mid_land(raw_json: dict) -> dict[str, dict]:
+    return _parse_mid_common(raw_json)
+
+
+def parse_mid_ta(raw_json: dict) -> dict[str, dict]:
+    return _parse_mid_common(raw_json)
+
+
+def parse_mid_sea(raw_json: dict) -> dict[str, dict]:
+    return _parse_mid_common(raw_json)
