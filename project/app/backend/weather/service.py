@@ -26,14 +26,17 @@ class WeatherService:
 
         # 중기(육상)
         try:
-            raw_mid = self.client.fetch_mid_land()
-            mid_data = parse_mid_land(raw_mid)
+            raw_mid_ground = self.client.fetch_mid_land()
+            raw_mid_sea = self.client.fetch_mid_sea()
+            mid_data_ground = parse_mid_land(raw_mid)
+            mid_data_sea = parse_mid_sea(raw_mid)
         except Exception as e:
             mid_data = {}
             print(f"[Error][중기] {e}")
 
         out["ultra"] = ultra_data
         out["short"] = short_data
-        out["mid"]   = mid_data
+        out["mid"]   = mid_data_ground
+        out["mid_sea"] = mid_data_sea
 
         return out

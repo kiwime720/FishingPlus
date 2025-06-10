@@ -84,7 +84,7 @@ class KMAClient:
             print(f"Response URL: {resp.url}")
             print(f"Response content: {resp.text[:200]}...")
             print(f"Response headers: {resp.headers}")
-        print(resp.json())
+        #print(resp.json())
         return resp.json()
 
     def fetch_mid_land(self):
@@ -100,6 +100,14 @@ class KMAClient:
         date, time = get_base_datetime_mid()
         tmFc = f"{date}{time}"
         url = KMA_MID_URL.format(CAST_MT, self.api_key, self.reg_id, tmFc[:8], tmFc[8:])
+        resp = requests.get(url)
+        resp.raise_for_status()
+        return resp.json()
+
+    def fetch_mid_sea(self):
+        date, time = get_base_datetime_mid()
+        tmFc = f"{date}{time}"
+        url = KMA_MID_URL.format(CAST_ML, self.api_key, self.reg_id, tmFc[:8], tmFc[8:])
         resp = requests.get(url)
         resp.raise_for_status()
         return resp.json()
