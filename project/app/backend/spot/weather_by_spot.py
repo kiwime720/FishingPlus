@@ -1,4 +1,4 @@
-from fishing_spot.service import FishingSpotService
+from spot.service import FishingSpotService
 from weather.service import WeatherService
 from function import x_y_to_kma_grid
 
