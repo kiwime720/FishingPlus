@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, Response, json
 from fishing_spot.service import FishingSpotService
-from weather_by_spot import FishingWeatherService
-from fish_by_spot import FishInfoService
+from project.app.backend.fishing_spot.weather_by_spot import FishingWeatherService
+from project.app.backend.fishing_spot.fish_by_spot import FishInfoService
 import env
 
 app = Flask(__name__)
