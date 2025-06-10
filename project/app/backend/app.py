@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, Response, json
-from .fishing_spot.service import FishingSpotService
-from .fishing_spot.weather_by_spot import FishingWeatherService
-from .fishing_spot.fish_by_spot import FishInfoService
+from fishing_spot.service import FishingSpotService
+from fishing_spot.weather_by_spot import FishingWeatherService
+from fishing_spot.fish_by_spot import FishInfoService
 import env
 
 app = Flask(__name__)

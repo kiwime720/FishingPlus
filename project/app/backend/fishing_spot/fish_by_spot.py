@@ -1,4 +1,4 @@
-from .service import FishingSpotService
+from fishing_spot.service import FishingSpotService
 from fish.service import FishService
 from function import bbox_from_x_y_radius
 
