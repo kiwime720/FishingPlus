@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import json
 
 class FishingSpotService:
     def __init__(self):
@@ -11,15 +12,6 @@ class FishingSpotService:
         sea_path = os.path.join(region_dir, "region_mid_sea.csv")
 
         self.df = pd.read_csv(file_path)
-        self.df = self.df.rename(columns={
-            "번호": "id",
-            "낚시터명": "name",
-            "소재지도로명주소": "road_address",
-            "소재지지번주소": "lot_address",
-            "WGS84위도": "lat",
-            "WGS84경도": "lon",
-            "낚시터유형": "type"
-        })
 
         self.land_df = pd.read_csv(land_path, header=None, names=["region_name", "region_code"])
         self.temp_df = pd.read_csv(temp_path, header=None, names=["region_name", "region_code"])
@@ -27,17 +19,31 @@ class FishingSpotService:
 
     # 모든 낚시터 출력
     def get_all_spots(self):
-        return self.df.to_dict(orient="records")
+        return self._parse_spot_rows(self.df)
 
     # 바다 낚시터 출력
     def get_sea_spots(self):
         filtered = self.df[self.df["type"] == "바다"]
-        return filtered.to_dict(orient="records")
+        return self._parse_spot_rows(filtered)
 
     # 육지 낚시터 출력
     def get_ground_spots(self):
         filtered = self.df[self.df["type"] != "바다"]
-        return filtered.to_dict(orient="records")
+        return self._parse_spot_rows(filtered)
+
+    # 내부 공통 처리 함수
+    def _parse_spot_rows(self, df_subset):
+        result = []
+        for _, row in df_subset.iterrows():
+            record = row.to_dict()
+            for col in ["weather_mid", "weather_short", "weather_ultra"]:
+                if isinstance(record.get(col), str):
+                    try:
+                        record[col] = json.loads(record[col])
+                    except json.JSONDecodeError:
+                        pass
+            result.append(record)
+        return result
     
     def get_coordinates_by_name(self, name: str):
         """
@@ -56,13 +62,26 @@ class FishingSpotService:
         if row.empty:
             return None
 
-        road_address = row.iloc[0].get("road_address", "")
-        lot_address = row.iloc[0].get("lot_address", "")
+        # None 또는 NaN 방지 처리
+        road_address = str(row.iloc[0].get("road_address") or "")
+        lot_address = str(row.iloc[0].get("lot_address") or "")
 
         for _, region_row in df.iterrows():
             region_name = region_row["region_name"]
             if region_name in road_address or region_name in lot_address:
                 return region_row["region_code"]
+        return None
+    
+    
+    def _lookup_code_from_address(self, road_address: str, lot_address: str, df: pd.DataFrame) -> str:
+        # None 또는 NaN 방지 처리
+        road_address = str(road_address or "")
+        lot_address = str(lot_address or "")
+
+        for _, row in df.iterrows():
+            region_name = row["region_name"]
+            if region_name in road_address or region_name in lot_address:
+                return row["region_code"]
         return None
 
     def get_mid_land_code_by_name(self, name: str) -> str:

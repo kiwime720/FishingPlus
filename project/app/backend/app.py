@@ -2,7 +2,10 @@ from flask import Flask, jsonify, request, Response, json
 from spot.service import FishingSpotService
 from spot.weather_by_spot import FishingWeatherService
 from spot.fish_by_spot import FishInfoService
+from spot.update_spot_data import update_fishing_spot_data, retry_failed_spots
+from apscheduler.schedulers.background import BackgroundScheduler
 import env
+import atexit
 
 app = Flask(__name__)
 
@@ -15,7 +18,7 @@ fish_service = FishInfoService(fish_api_key=env.EnvironmentKey.FISH_API_KEY, spo
 @app.route("/api/spots", methods=["GET"])
 def get_all_spots():
     return Response(
-        json.dumps(spot_service.get_all_spots(), ensure_ascii=False),
+        json.dumps(spot_service.get_all_spots(), ensure_ascii=False, indent=2),
         content_type="application/json; charset=utf-8"
     )
 
@@ -23,7 +26,7 @@ def get_all_spots():
 @app.route("/api/spots/sea", methods=["GET"])
 def get_sea_spots():
     return Response(
-        json.dumps(spot_service.get_sea_spots(), ensure_ascii=False),
+        json.dumps(spot_service.get_sea_spots(), ensure_ascii=False, indent=2),
         content_type="application/json; charset=utf-8"
     )
 
@@ -31,7 +34,7 @@ def get_sea_spots():
 @app.route("/api/spots/ground", methods=["GET"])
 def get_ground_spots():
     return Response(
-        json.dumps(spot_service.get_ground_spots(), ensure_ascii=False),
+        json.dumps(spot_service.get_ground_spots(), ensure_ascii=False, indent=2),
         content_type="application/json; charset=utf-8"
     )
 
@@ -61,4 +64,4 @@ def get_fish_by_name():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)

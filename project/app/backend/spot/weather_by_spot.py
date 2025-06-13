@@ -1,6 +1,7 @@
 from spot.service import FishingSpotService
 from weather.service import WeatherService
 from function import x_y_to_kma_grid
+import time
 
 class FishingWeatherService:
     def __init__(self, weather_api_key: str, spot_service: FishingSpotService):
@@ -34,3 +35,61 @@ class FishingWeatherService:
         )
         forecasts = service.get_all_forecasts()
         return forecasts
+
+    def get_weather_by_coordinates(self, lat: float, lon: float, road_address: str, lot_address: str, max_retry: int = 3, retry_delay: float = 1.5) -> dict:
+        """
+        위경도 + 주소 정보로 날씨 반환 (모든 예보 종류가 성공해야 성공으로 간주)
+        실패 시 {"error": "..."} 형태로 반환
+        """
+        if lat is None or lon is None:
+            return {"error": "위경도가 올바르지 않습니다."}
+
+        try:
+            # 위경도 → 기상청 격자
+            nx, ny = x_y_to_kma_grid(lat, lon)
+            print(f"[Weather] 격자 변환: lat={lat}, lon={lon} → nx={nx}, ny={ny}")
+
+            # 주소에서 지역 코드 추출
+            land_code = self.spot_service._lookup_code_from_address(road_address, lot_address, self.spot_service.land_df)
+            temp_code = self.spot_service._lookup_code_from_address(road_address, lot_address, self.spot_service.temp_df)
+            sea_code = self.spot_service._lookup_code_from_address(road_address, lot_address, self.spot_service.sea_df)
+
+            print(f"[Weather] 코드 추출: land={land_code}, temp={temp_code}, sea={sea_code}")
+
+            for attempt in range(1, max_retry + 1):
+                try:
+                    print(f"[Weather] get_all_forecasts() 시도 {attempt}")
+                    service = WeatherService(
+                        self.api_key,
+                        nx,
+                        ny,
+                        reg_id_land=land_code,
+                        reg_id_temp=temp_code,
+                        reg_id_sea=sea_code,
+                    )
+                    result = service.get_all_forecasts()
+
+                    if not isinstance(result, dict):
+                        raise ValueError("예보 결과가 dict 형식이 아님")
+
+                    mid = result.get("mid")
+                    short = result.get("short")
+                    ultra = result.get("ultra")
+
+                    # 세 예보가 모두 존재하고 dict 형식인지 확인
+                    if all(isinstance(val, dict) and val for val in [mid, short, ultra]):
+                        print("[Weather] 모든 예보 조회 성공")
+                        return result
+                    else:
+                        raise ValueError("중기/단기/초단기 중 일부 예보 실패 또는 빈 데이터")
+
+                except Exception as inner_e:
+                    print(f"[Weather] 재시도 실패 ({attempt}/{max_retry}): {inner_e}")
+                    if attempt < max_retry:
+                        time.sleep(retry_delay)
+
+            return {"error": "날씨 전체 예보 조회 실패 (모든 예보 미완성)"}
+
+        except Exception as e:
+            print(f"[Weather] 예외 발생: {e}")
+            return {"error": f"날씨 조회 중 예외 발생: {e}"}

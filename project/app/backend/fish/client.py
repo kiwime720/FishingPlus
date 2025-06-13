@@ -45,7 +45,7 @@ class FishAPIClient:
             PARAM_MAX_FEATURES: max_features or DEFAULT_MAX_FEATURES,
         }
         resp = requests.get(url, params=params)
-        print(url, params)
+        # print(url, params)
         resp.raise_for_status()
-        print(resp.text)
+        # print(resp.text)
         return resp.text
