@@ -49,11 +49,10 @@ class FishingWeatherService:
             nx, ny = x_y_to_kma_grid(lat, lon)
             print(f"[Weather] 격자 변환: lat={lat}, lon={lon} → nx={nx}, ny={ny}")
 
-            # 주소에서 지역 코드 추출 (육상 코드 기준 매핑)
-            land_code, temp_code, sea_code = self.spot_service.get_codes_from_address(
-                road_address,
-                lot_address,
-            )
+            # 주소에서 지역 코드 추출
+            land_code = self.spot_service._lookup_code_from_address(road_address, lot_address, self.spot_service.land_df)
+            temp_code = self.spot_service._lookup_code_from_address(road_address, lot_address, self.spot_service.temp_df)
+            sea_code = self.spot_service._lookup_code_from_address(road_address, lot_address, self.spot_service.sea_df)
 
             print(f"[Weather] 코드 추출: land={land_code}, temp={temp_code}, sea={sea_code}")
 
