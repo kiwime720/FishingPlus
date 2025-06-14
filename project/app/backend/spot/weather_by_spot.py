@@ -54,6 +54,13 @@ class FishingWeatherService:
             temp_code = self.spot_service._lookup_code_from_address(road_address, lot_address, self.spot_service.temp_df)
             sea_code = self.spot_service._lookup_code_from_address(road_address, lot_address, self.spot_service.sea_df)
 
+            # 주소 기반으로 찾지 못한 경우 격자 기반 매핑 시도
+            if not land_code or not temp_code or not sea_code:
+                land_g, temp_g, sea_g = self.spot_service.get_mid_codes_by_grid(nx, ny)
+                land_code = land_code or land_g
+                temp_code = temp_code or temp_g
+                sea_code = sea_code or sea_g
+
             print(f"[Weather] 코드 추출: land={land_code}, temp={temp_code}, sea={sea_code}")
 
             for attempt in range(1, max_retry + 1):

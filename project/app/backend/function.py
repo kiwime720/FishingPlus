@@ -198,6 +198,12 @@ def fetch_weather_all(
     r_mid_ta.raise_for_status()
     result["mid"]["ta"] = r_mid_ta.json()
 
+    # 2-3-c) 중기 해상 예보
+    url_mid_sea = "http://apis.data.go.kr/1360000/MidFcstInfoService/getMidSeaFcst"
+    r_mid_sea = requests.get(url_mid_sea, params=params_mid, timeout=10)
+    r_mid_sea.raise_for_status()
+    result["mid"]["sea"] = r_mid_sea.json()
+
     return result
 
 import requests
