@@ -10,6 +10,7 @@ from weather.const import (
     CAST_V,
     CAST_ML,
     CAST_MT,
+    CAST_MS
 )
 
 # KST(한국 표준시: UTC+9)

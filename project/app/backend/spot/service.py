@@ -77,6 +77,7 @@ class FishingSpotService:
         # None 또는 NaN 방지 처리
         road_address = str(road_address or "")
         lot_address = str(lot_address or "")
+        sea_address = str(sea_address or "")
 
         for _, row in df.iterrows():
             region_name = row["region_name"]

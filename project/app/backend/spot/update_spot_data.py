@@ -99,6 +99,7 @@ def retry_failed_spots(
         lon = row["lon"]
         road_address = row.get("road_address", "")
         lot_address = row.get("lot_address", "")
+        sea_address = row.get("sea_address", "")
         print(f"\n[재시도] {name} ({idx})")
 
         # 날씨 재시도

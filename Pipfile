@@ -10,6 +10,10 @@ requests = "*"
 pyproj = "*"
 pymysql = "*"
 python-dotenv = "*"   # .env 로드용
+pandas = "*"
+apscheduler = "*"
 
 [requires]
 python_version = "3.11"
+
+[dev-packages]
