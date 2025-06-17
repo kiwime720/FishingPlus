@@ -1,26 +1,34 @@
-from flask import Flask, jsonify, render_template
-import os, csv, random, datetime
+from flask import Flask, jsonify, render_template, request, session
+import os, pandas as pd
 
+app = Flask(__name__)
+app.secret_key = 'replace-with-your-secret-key'
+
+# ——— spot 데이터 읽기 ———
 BASE_DIR = os.path.dirname(__file__)
-CSV_PATH = os.path.join(BASE_DIR, 'data', 'fishing_spot.csv')
+XLSX_PATH = os.path.join(BASE_DIR, 'data', 'spot_table_01.xlsx')
 
-app = Flask(__name__, static_folder='static', template_folder='templates')
+# 1) 엑셀 로드
+df = pd.read_excel(XLSX_PATH, dtype={
+    'spot_id': int, 'name': str, 'address': str,
+    'tel': str, 'operation_hours': str, 'thum_url': str,
+    'x': float, 'y': float, 'menu_info': str, 'type': str
+})
 
-# ——— 낚시터 데이터 로드 ———
+# 2) NaN → '' 로 채우기
+df.fillna('', inplace=True)
+
 spots = []
-with open(CSV_PATH, encoding='utf-8-sig') as f:
-    reader = csv.DictReader(f)
-    for row in reader:
-        spots.append({
-            'name'         : row['낚시터명'],
-            'type'         : row['낚시터유형'],
-            'road_address' : row['소재지도로명주소'],
-            'jibun_address': row['소재지지번주소'],
-            'coords'       : [
-                float(row['WGS84위도']),
-                float(row['WGS84경도'])
-            ]
-        })
+for _, row in df.iterrows():
+    spots.append({
+        'spot_id'        : int(row['spot_id']),
+        'name'           : row['name'],
+        'address'        : row['address'],
+        'tel'            : row['tel'],            # 이제 항상 문자열
+        'operation_hours': row['operation_hours'],# 빈 문자열 또는 실제 값
+        'type'           : row['type'],
+        'coords'         : [row['x'], row['y']]   # 숫자 필드는 NaN이 아닙니다
+    })
 
 @app.route('/')
 def index():
@@ -30,54 +38,22 @@ def index():
 def api_spots():
     return jsonify(spots)
 
-@app.route('/board')
-def board():
-    return render_template('board.html')
+# ——— 로그인/로그아웃 API ———
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.get_json()
+    user_id = data.get('id')
+    user_pw = data.get('pw')
+    # TODO: 실제 DB 검증 로직으로 교체
+    if user_id == 'admin' and user_pw == 'password':
+        session['user'] = user_id
+        return jsonify({'success': True})
+    return jsonify({'success': False, 'message': '아이디 또는 비밀번호가 일치하지 않습니다.'})
 
-# ——— 날씨 API (모킹) ———
-def mock_weather():
-    now     = datetime.datetime.now()
-    sunrise = "06:00"
-    sunset  = "19:00"
-    return {
-        'location'           : 'Seoul, KR',
-        'temperature'        : round(random.uniform(18, 28), 1),
-        'description'        : random.choice(['맑음','구름조금','흐림','비']),
-        'humidity'           : random.randint(40, 70),
-        'wind_speed'         : round(random.uniform(3, 12), 1),
-        'sunrise'            : sunrise,
-        'sunset'             : sunset,
-        'day_length'         : '13h 00m',
-        'precipitation_chance': random.randint(0, 30),
-        'forecast'           : [
-            {
-              'day' : (now + datetime.timedelta(days=i)).strftime('%a'),
-              'icon': '⛅',
-              'temp': round(random.uniform(18, 28),1)
-            }
-            for i in range(1,5)
-        ]
-    }
-
-@app.route('/api/weather/today')
-def api_weather_today():
-    return jsonify(mock_weather())
-
-@app.route('/api/weather/tomorrow')
-def api_weather_tomorrow():
-    return jsonify(mock_weather())
-
-# ——— 어종 API (임의 데이터) ———
-@app.route('/api/fish')
-def api_fish():
-    species = ['광어','참돔','농어','전어','도미']
-    counts  = [ random.randint(10,50) for _ in species ]
-    total   = sum(counts)
-    distribution = [
-        {'species': s, 'percent': round(c/total*100,1)}
-        for s,c in zip(species, counts)
-    ]
-    return jsonify(distribution)
+@app.route('/api/logout', methods=['POST'])
+def api_logout():
+    session.clear()
+    return jsonify({'success': True})
 
 if __name__ == '__main__':
     app.run(debug=True)
