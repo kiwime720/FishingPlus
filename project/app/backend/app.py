@@ -22,16 +22,16 @@ def get_all_spots():
         content_type="application/json; charset=utf-8"
     )
 
-# 바다 낚시터 출력
-@app.route("/api/spots/sea", methods=["GET"])
+# 선상 낚시터 출력
+@app.route("/api/spots/boat", methods=["GET"])
 def get_sea_spots():
     return Response(
         json.dumps(spot_service.get_sea_spots(), ensure_ascii=False, indent=2),
         content_type="application/json; charset=utf-8"
     )
 
-# 육지 낚시터 출력
-@app.route("/api/spots/ground", methods=["GET"])
+# 실내 낚시터 출력
+@app.route("/api/spots/indoor", methods=["GET"])
 def get_ground_spots():
     return Response(
         json.dumps(spot_service.get_ground_spots(), ensure_ascii=False, indent=2),
@@ -64,4 +64,5 @@ def get_fish_by_name():
 
 
 if __name__ == "__main__":
+    retry_failed_spots(weather_service, fish_service)
     app.run(debug=True, use_reloader=False)

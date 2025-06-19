@@ -47,14 +47,14 @@ class FishingSpotService:
     def get_all_spots(self):
         return self._parse_spot_rows(self.df)
 
-    # 바다 낚시터 출력
+    # 선상 낚시터 출력
     def get_sea_spots(self):
-        filtered = self.df[self.df["type"] == "바다"]
+        filtered = self.df[self.df["type"] == "boat"]
         return self._parse_spot_rows(filtered)
 
-    # 육지 낚시터 출력
+    # 실내 낚시터 출력
     def get_ground_spots(self):
-        filtered = self.df[self.df["type"] != "바다"]
+        filtered = self.df[self.df["type"] == "indoor"]
         return self._parse_spot_rows(filtered)
 
     # 내부 공통 처리 함수
@@ -88,26 +88,23 @@ class FishingSpotService:
         if row.empty:
             return None
 
-        # None 또는 NaN 방지 처리
-        road_address = str(row.iloc[0].get("road_address") or "")
-        lot_address = str(row.iloc[0].get("lot_address") or "")
+        address = str(row.iloc[0].get("address") or "")
 
         for _, region_row in df.iterrows():
             region_name = region_row["region_name"]
-            if region_name in road_address or region_name in lot_address:
+            if region_name in address:
                 return region_row["region_code"]
         return None
     
     
-    def _lookup_code_from_address(self, road_address: str, lot_address: str, df: pd.DataFrame) -> str:
-        # None 또는 NaN 방지 처리
-        road_address = str(road_address or "")
-        lot_address = str(lot_address or "")
-
+    def _lookup_code_from_address(self, address: str, df: pd.DataFrame) -> str:
+        print("주소체크" + address)
         for _, row in df.iterrows():
             region_name = row["region_name"]
-            if region_name in road_address or region_name in lot_address:
+            if region_name in address:
+                print("출력체크" + row["region_code"])
                 return row["region_code"]
+        print("실패 ㅇㅇ")
         return None
 
     def get_mid_land_code_by_name(self, name: str) -> str:

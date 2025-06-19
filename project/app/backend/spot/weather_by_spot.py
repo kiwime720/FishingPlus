@@ -36,7 +36,7 @@ class FishingWeatherService:
         forecasts = service.get_all_forecasts()
         return forecasts
 
-    def get_weather_by_coordinates(self, lat: float, lon: float, road_address: str, lot_address: str, max_retry: int = 3, retry_delay: float = 1.5) -> dict:
+    def get_weather_by_coordinates(self, lat: float, lon: float, address: str, max_retry: int = 3, retry_delay: float = 1.5) -> dict:
         """
         위경도 + 주소 정보로 날씨 반환 (모든 예보 종류가 성공해야 성공으로 간주)
         실패 시 {"error": "..."} 형태로 반환
@@ -50,9 +50,9 @@ class FishingWeatherService:
             print(f"[Weather] 격자 변환: lat={lat}, lon={lon} → nx={nx}, ny={ny}")
 
             # 주소에서 지역 코드 추출
-            land_code = self.spot_service._lookup_code_from_address(road_address, lot_address, self.spot_service.land_df)
-            temp_code = self.spot_service._lookup_code_from_address(road_address, lot_address, self.spot_service.temp_df)
-            sea_code = self.spot_service._lookup_code_from_address(road_address, lot_address, self.spot_service.sea_df)
+            land_code = self.spot_service._lookup_code_from_address(address, self.spot_service.land_df)
+            temp_code = self.spot_service._lookup_code_from_address(address, self.spot_service.temp_df)
+            sea_code = self.spot_service._lookup_code_from_address(address, self.spot_service.sea_df)
 
             # 주소 기반으로 찾지 못한 경우 격자 기반 매핑 시도
             if not land_code or not temp_code or not sea_code:

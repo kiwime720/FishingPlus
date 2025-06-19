@@ -20,15 +20,14 @@ def update_fishing_spot_data(
         name = row["name"]
         lat = row["lat"]
         lon = row["lon"]
-        road_address = row.get("road_address", "")
-        lot_address = row.get("lot_address", "")
+        address = row.get("address", "")
 
         print(f"\n[{idx + 1}] {name}")
 
         # 날씨 정보 조회 (최대 3회)
         for attempt in range(1, max_retry + 1):
             try:
-                weather = weather_service.get_weather_by_coordinates(lat, lon, road_address, lot_address)
+                weather = weather_service.get_weather_by_coordinates(lat, lon, address)
                 if weather and isinstance(weather, dict) and "error" not in weather and any(weather.values()):
                     df.at[idx, "weather_mid"] = json.dumps(weather.get("mid", {}), ensure_ascii=False)
                     df.at[idx, "weather_short"] = json.dumps(weather.get("short", {}), ensure_ascii=False)
