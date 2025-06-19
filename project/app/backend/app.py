@@ -64,5 +64,4 @@ def get_fish_by_name():
 
 
 if __name__ == "__main__":
-    retry_failed_spots(weather_service, fish_service)
     app.run(debug=True, use_reloader=False)
