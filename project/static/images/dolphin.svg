@@ -1,0 +1,8 @@
+<!-- static/images/dolphin.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <path fill="#66ccff" d="M2 32c0-8 8-16 16-16s16 8 16 16-8 16-16 16S2 40 2 32z"/>
+  <path fill="#0077cc" d="M34 30c0-5 4-10 10-10s10 5 10 10-4 10-10 10S34 35 34 30z"/>
+  <path fill="#fff" d="M40 28a2 2 0 100-4 2 2 0 000 4z"/>
+  <path fill="#0077cc" d="M18 32c4-4 12-4 16 0l4-4c-6-6-18-6-24 0l4 4z"/>
+  <path fill="#0077cc" d="M30 38c4-4 12-4 16 0l4-4c-6-6-18-6-24 0l4 4z"/>
+</svg>
