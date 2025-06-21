@@ -1,4 +1,7 @@
-/* css/home.css */
+/* HTML, BODY 높이 확보 */
+html, body {
+  height: 100%;
+}
 
 /* Reset & 공통 스타일 */
 * {
@@ -22,20 +25,17 @@ header {
   display: flex;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-header h1 {
-  font-size: 1.5rem;
+  position: relative;
 }
 header h1 a {
   color: #fff;
+  font-size: 1.5rem;
   text-decoration: none;
 }
 header nav {
   position: absolute;
   right: 2rem;
 }
-/* 로그인 버튼과 게시판 링크 */
 header nav button,
 header nav a.signup {
   margin-left: .5rem;
@@ -46,7 +46,6 @@ header nav a.signup {
   color: #fff;
   cursor: pointer;
   text-decoration: none;
-  display: inline-block;
 }
 header nav a.signup {
   background: #48bb78;
@@ -67,7 +66,6 @@ header nav a.signup {
 /* 검색바 */
 #searchBar {
   text-align: center;
-  margin-bottom: 1.5rem;
 }
 #searchBar input {
   width: 80%;
@@ -80,12 +78,58 @@ header nav a.signup {
   background: #fff;
 }
 
-/* 지도 스타일 */
+/* 낚시 모드 토글 */
+.mode-btn {
+  transition: background .2s;  
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+.mode-btn:hover {
+  background: rgba(255,255,255,0.3);
+}
+.mode-btn.active {
+  background: rgba(255,255,255,0.4);
+}
+
+/* 지도 */
 #map {
   width: 100%;
-  height: 400px;
+  height: 24rem; /* h-96 */
   border-radius: .5rem;
-  background: url('https://tile.openstreetmap.org/7/109/50.png') center/cover no-repeat;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* infoWindow */
+.info-window {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: .75rem 1rem;
+  border-radius: .5rem;
+  z-index: 1000;
+}
+.info-close {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 1rem;
+  float: right;
+}
+.info-window.hidden {
+  display: none;
+}
+
+/* 정보 박스 레이아웃 */
+.info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.info-container > .flex {
+  display: flex;
+  gap: 1rem;
 }
 
 /* Weather Widget */
@@ -202,8 +246,6 @@ header nav a.signup {
   background: #ccc;
   color: #333;
 }
-
-/* 모달 링크 추가 스타일 */
 .modal-links {
   margin-top: 1rem;
   text-align: center;

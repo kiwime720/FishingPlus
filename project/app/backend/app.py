@@ -4,15 +4,23 @@ from spot.weather_by_spot import FishingWeatherService
 from spot.fish_by_spot import FishInfoService
 from spot.update_spot_data import update_fishing_spot_data, retry_failed_spots
 from apscheduler.schedulers.background import BackgroundScheduler
+
 import env
 import atexit
 
 app = Flask(__name__)
+CORS(app)
 
 # 서비스 인스턴스 생성
 spot_service = FishingSpotService()
 weather_service = FishingWeatherService(weather_api_key=env.EnvironmentKey.KMA_SERVICE_KEY, spot_service=spot_service)
 fish_service = FishInfoService(fish_api_key=env.EnvironmentKey.FISH_API_KEY, spot_service=spot_service)
+
+app.register_blueprint(favorites_api)
+app.register_blueprint(user_api)
+app.register_blueprint(board_api, url_prefix="/api")
+app.register_blueprint(comment_api, url_prefix="/api")
+
 
 # 낚시터 출력
 @app.route("/api/spots", methods=["GET"])
