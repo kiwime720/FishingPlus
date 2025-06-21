@@ -2,14 +2,11 @@ from flask import Flask, jsonify, request, Response, json
 from spot.service import FishingSpotService
 from spot.weather_by_spot import FishingWeatherService
 from spot.fish_by_spot import FishInfoService
-
-from service_db.favorites_service import favorites_api
-from service_db.user_service import user_api
-from service_db.board_service import board_api
-from service_db.comment_service import comment_api
-from flask_cors import CORS
+from spot.update_spot_data import update_fishing_spot_data, retry_failed_spots
+from apscheduler.schedulers.background import BackgroundScheduler
 
 import env
+import atexit
 
 app = Flask(__name__)
 CORS(app)
@@ -29,23 +26,23 @@ app.register_blueprint(comment_api, url_prefix="/api")
 @app.route("/api/spots", methods=["GET"])
 def get_all_spots():
     return Response(
-        json.dumps(spot_service.get_all_spots(), ensure_ascii=False),
+        json.dumps(spot_service.get_all_spots(), ensure_ascii=False, indent=2),
         content_type="application/json; charset=utf-8"
     )
 
-# 바다 낚시터 출력
-@app.route("/api/spots/sea", methods=["GET"])
+# 선상 낚시터 출력
+@app.route("/api/spots/boat", methods=["GET"])
 def get_sea_spots():
     return Response(
-        json.dumps(spot_service.get_sea_spots(), ensure_ascii=False),
+        json.dumps(spot_service.get_sea_spots(), ensure_ascii=False, indent=2),
         content_type="application/json; charset=utf-8"
     )
 
-# 육지 낚시터 출력
-@app.route("/api/spots/ground", methods=["GET"])
+# 실내 낚시터 출력
+@app.route("/api/spots/indoor", methods=["GET"])
 def get_ground_spots():
     return Response(
-        json.dumps(spot_service.get_ground_spots(), ensure_ascii=False),
+        json.dumps(spot_service.get_ground_spots(), ensure_ascii=False, indent=2),
         content_type="application/json; charset=utf-8"
     )
 
@@ -75,4 +72,4 @@ def get_fish_by_name():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, use_reloader=False)

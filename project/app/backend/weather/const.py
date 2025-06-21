@@ -42,20 +42,31 @@ ITEM_BTIME    = "baseTime"
 CATEGORY_CODE = {
     # 초단기 예보 필드명 매핑
     "T1H": ["temperature"],
-    "RN1": ["precipitation"],
+    "RN1": ["precipitation"],        # 1시간 강수량 (범주)
+    "SKY": ["sky"],                  # 하늘 상태 (코드값: 맑음1/구름많음3/흐림4)
+    "UUU": ["wind_ew_component"],
+    "VVV": ["wind_ns_component"],
     "REH": ["humidity"],
-    "PTY": ["precipitation_type"],
-    "SKY": ["sky"],
-    "WSD": ["wind_speed"],
+    "PTY": ["precipitation_type"],  # 초단기용 코드값: 0~7
+    "LGT": ["lightning"],           # 낙뢰 (킬로암페어)
     "VEC": ["wind_bearing"],
+    "WSD": ["wind_speed"],
 
     # 단기 예보 필드명 매핑
-    "TMP": ["temperature"],             # 기온
-    "SKY": ["sky"],                     # 하늘상태
-    "POP": ["precipitation_probability"],  # 강수확률
-    "PTY": ["precipitation_type"],      # 강수형태
+    "TMP": ["temperature"],             # 1시간 기온
+    "TMN": ["temp_min"],                # 일 최저기온
+    "TMX": ["temp_max"],                # 일 최고기온
+    "POP": ["precipitation_probability"],  # 강수확률(%)
+    "PTY": ["precipitation_type"],      # 강수형태 (0~4)
+    "PCP": ["precipitation"],           # 강수량
     "REH": ["humidity"],                # 습도
-    "WSD": ["wind_speed"],              # 풍속
+    "SNO": ["snowfall"],                # 신적설
+    "SKY": ["sky"],                     # 하늘 상태
+    "UUU": ["wind_ew_component"],       # 동서성분
+    "VVV": ["wind_ns_component"],       # 남북성분
+    "WAV": ["wave_height"],             # 파고 (m)
+    "VEC": ["wind_bearing"],            # 풍향
+    "WSD": ["wind_speed"],               # 풍속
 
     # 중기 예보 필드명 매핑
     "rnSt4Am": ["precipitation_probability_4_am"],
@@ -66,9 +77,6 @@ CATEGORY_CODE = {
     "rnSt6Pm": ["precipitation_probability_6_pm"],
     "rnSt7Am": ["precipitation_probability_7_am"],
     "rnSt7Pm": ["precipitation_probability_7_pm"],
-    "rnSt8":   ["precipitation_probability_8"],
-    "rnSt9":   ["precipitation_probability_9"],
-    "rnSt10":  ["precipitation_probability_10"],
 
     "wf4Am": ["sky_4_am"],
     "wf4Pm": ["sky_4_pm"],
