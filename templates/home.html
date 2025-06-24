@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fishing+</title>
+
+  <!-- Tailwind CSS & Montserrat 폰트 -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    integrity="sha512-..."
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <!-- Kakao Maps SDK -->
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey={{ kakao_key }}&libraries=clusterer" charset="utf-8"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}" />
+</head>
+<body class="gmaps-body font-montserrat">
+
+  <!-- 상단 바: 메뉴, 로고, 검색, 로그인/모드 선택 -->
+  <header class="gmaps-topbar">
+    <button class="gmaps-menu text-2xl" aria-label="메뉴 열기">☰</button>
+    <h1 class="gmaps-title title-gradient flex items-center">
+      <img src="{{ url_for('static', filename='images/dolphin.svg') }}" alt="돌고래 아이콘" class="title-icon mr-2" />
+      Fishing+
+    </h1>
+    <div class="gmaps-search flex items-center border border-blue-300 bg-blue-50 rounded-full px-3">
+      <input id="mapSearch" type="text" placeholder="낚시터 검색…" class="flex-grow outline-none px-2 py-1" />
+      <button class="text-blue-600" aria-label="검색">🔍</button>
+    </div>
+    <div class="gmaps-cats flex space-x-2">
+      <button data-mode="실내" class="mode-btn bg-blue-300 text-white rounded-full px-3 py-1 text-sm">실내 낚시</button>
+      <button data-mode="선상" class="mode-btn active bg-blue-600 text-white rounded-full px-3 py-1 text-sm">선상 낚시</button>
+      <button id="loginBtn" class="px-4 py-1 bg-blue-600 text-white rounded-md text-sm">로그인</button>
+    </div>
+  </header>
+
+  <!-- 지도 영역 -->
+  <main id="map" class="gmaps-map"></main>
+
+  <!-- 사이드 패널: 상세 정보 -->
+  <aside id="sidePanel" class="side-panel">
+    <button id="sideClose" class="side-close" aria-label="닫기">✕</button>
+    <div id="sideContent" class="p-4 overflow-y-auto"></div>
+  </aside>
+
+  <!-- 햄버거 메뉴 패널 -->
+  <div id="menuOverlay" class="fixed inset-0 bg-black bg-opacity-40 hidden z-40"></div>
+
+  <nav id="menuPanel" class="menu-panel">
+    <button id="menuClose" class="menu-close" aria-label="메뉴 닫기">✕</button>
+    <ul class="menu-list">
+      <li><button id="openFreeBoard" class="menu-btn"><i class="fas fa-comments"></i>자유게시판</button></li>
+      <li><button id="openFavorites" class="menu-btn"><i class="fas fa-star"></i>즐겨찾기</button></li>
+      <!-- 필요 시 더 추가 -->
+    </ul>
+  </nav>
+
+
+  <!-- 자유게시판 Modal -->
+  <div id="boardModal" class="modal-overlay hidden">
+    <div class="modal bg-white rounded-lg p-6 w-11/12 max-w-2xl min-h-[500px] mx-auto">
+      <h3 class="text-2xl font-semibold mb-4">자유게시판</h3>
+      <!-- 제목 입력 -->
+      <input id="boardTitle" type="text" placeholder="제목을 입력하세요" class="w-full mb-4 p-2 border rounded outline-none focus:ring-2 focus:ring-blue-400" />
+      <select id="boardSpotSelect" class="w-full mb-4 p-2 border rounded">
+        <option value="">낚시터를 선택하세요 (선택사항)</option>
+      </select>
+      <!-- 내용 입력 -->
+      <textarea id="boardContent" placeholder="내용을 입력하세요" class="w-full h-48 mb-4 p-2 border rounded resize-none outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+      <!-- 버튼 그룹 -->
+      <div class="flex justify-end space-x-2">
+        <button id="registerBoardBtn" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">등록</button>
+        <button id="cancelBoardBtn" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 날씨 정보 요약: 초단기, 단기, 중기 -->
+  <section class="flex gap-4 mt-4 mx-4">
+    <div id="weather1" class="info-box flex-1 p-4 bg-white rounded-lg shadow-md"></div>
+    <div id="weather2" class="info-box flex-1 p-4 bg-white rounded-lg shadow-md"></div>
+    <div id="weather3" class="info-box flex-1 p-4 bg-white rounded-lg shadow-md"></div>
+  </section>
+
+  <!-- 시간별 예보 그래프 -->
+  <div id="hourlyWeather" class="hourly-weather flex flex-row overflow-x-auto gap-4 p-4 bg-white rounded-lg shadow-md mx-4 mt-4"></div>
+
+  <!-- 즐겨찾기 Modal -->
+  <div id="favModal" class="modal-overlay hidden">
+    <div class="modal bg-white rounded-lg p-6 w-11/12 max-w-md mx-auto">
+      <h3 class="text-2xl font-semibold mb-4">즐겨찾기</h3>
+      <div id="favList" class="mb-4 max-h-60 overflow-y-auto"></div>
+      <div class="flex justify-end">
+        <button id="cancelFavBtn" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 로그인 Modal -->
+  <div id="modalOverlay" class="modal-overlay hidden">
+  <div class="modal bg-white rounded-lg p-6 w-11/12 max-w-sm mx-auto">
+    <div class="flex justify-around mb-4">
+      <button id="showLogin" class="font-semibold">로그인</button>
+      <button id="showSignup" class="font-semibold">회원가입</button>
+    </div>
+    <!-- 로그인 폼 -->
+    <form id="loginForm">
+      <label for="userId" class="block mb-1">ID</label>
+      <input id="userId" type="text" placeholder="아이디" class="w-full mb-4 p-2 border rounded" />
+      <label for="userPw" class="block mb-1">PW</label>
+      <input id="userPw" type="password" placeholder="비밀번호" class="w-full mb-4 p-2 border rounded" />
+      <div class="flex justify-end space-x-2">
+        <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-300 rounded">취소</button>
+        <button type="submit" id="confirmBtn" class="px-4 py-2 bg-blue-600 text-white rounded">확인</button>
+      </div>
+    </form>
+    <!-- 회원가입 폼 (숨김) -->
+    <form id="signupFormModal" class="hidden space-y-4">
+      <input name="user_id" placeholder="아이디" class="w-full border px-3 py-2 rounded" required />
+      <input name="user_pw" type="password" placeholder="비밀번호" class="w-full border px-3 py-2 rounded" required />
+      <input name="name" placeholder="이름" class="w-full border px-3 py-2 rounded" required />
+      <input name="email" type="email" placeholder="이메일" class="w-full border px-3 py-2 rounded" required />
+      <input name="address" placeholder="주소" class="w-full border px-3 py-2 rounded" />
+      <input name="phone" placeholder="전화번호" class="w-full border px-3 py-2 rounded" />
+      <div class="flex justify-end">
+        <button type="button" id="cancelSignup" class="px-4 py-2 bg-gray-300 rounded">취소</button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded">가입하기</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+  <!-- 자유게시판 목록 모달 -->
+  <div id="boardListModal" class="modal-overlay hidden">
+    <div class="modal bg-white rounded-lg p-6 w-11/12 max-w-4xl min-h-[600px] mx-auto">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-2xl font-semibold">자유게시판</h3>
+        <div class="space-x-2">
+          <button id="newBoardBtn" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">+ 글쓰기</button>
+          <button id="closeBoardList" class="text-gray-500 hover:text-gray-700 text-xl">✕</button>
+        </div>
+      </div>
+      <div id="boardList" class="space-y-4 max-h-[60vh] overflow-y-auto">
+        <!-- 게시글 목록 렌더링 영역 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 상세 보기 모달 -->
+  <div id="boardDetailModal" class="modal-overlay hidden">
+    <div class="modal bg-white rounded-lg p-6 w-11/12 max-w-3xl min-h-[600px] mx-auto relative">
+      <button id="closeBoardDetail" class="absolute top-2 right-3 text-gray-500 text-xl">×</button>
+      <h3 id="detailTitle" class="text-xl font-bold mb-2">제목</h3>
+      <div id="detailMeta" class="text-sm text-gray-500 mb-4">작성자 | 날짜</div>
+      <div id="detailContent" class="text-gray-800 text-sm whitespace-pre-wrap mb-4">내용</div>
+      <div id="detailSpot"></div>
+      <!-- 추가 -->
+      <div id="detailActions" class="flex justify-end gap-2 hidden">
+        <button id="editBoardBtn" class="px-3 py-1 text-sm bg-yellow-500 text-white rounded">수정</button>
+        <button id="deleteBoardBtn" class="px-3 py-1 text-sm bg-red-600 text-white rounded">삭제</button>
+      </div>
+
+        <div class="mt-6">
+          <h3 class="text-lg font-bold">댓글</h3>
+          <div id="commentList" class="mt-2 space-y-2"></div>
+
+          <div id="commentForm" class="mt-4 flex gap-2">
+            <input id="commentInput" type="text" placeholder="댓글을 입력하세요" class="flex-1 border rounded px-2 py-1">
+            <button id="commentSubmit" class="bg-blue-500 text-white px-4 rounded">작성</button>
+          </div>
+        </div>
+
+    </div>
+  </div>
+
+
+  <!-- 메인 스크립트 로드 -->
+  <script src="{{ url_for('static', filename='js/home.js') }}"></script>
+</body>
+</html>
