@@ -101,7 +101,12 @@ def parse_mid_land(raw_json: dict) -> dict[str, dict]:
 
 
 def parse_mid_ta(raw_json: dict) -> dict[str, dict]:
-    return _parse_mid_common(raw_json)
+    data = _parse_mid_common(raw_json)
+    for dt, info in data.items():
+        for key in list(info.keys()):
+            if key.endswith("_low") or key.endswith("_high"):
+                info.pop(key, None)
+    return data
 
 
 def parse_mid_sea(raw_json: dict) -> dict[str, dict]:

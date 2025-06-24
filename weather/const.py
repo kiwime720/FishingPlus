@@ -56,6 +56,7 @@ CATEGORY_CODE = {
     "PTY": ["precipitation_type"],      # 강수형태
     "REH": ["humidity"],                # 습도
     "WSD": ["wind_speed"],              # 풍속
+    "WAV": ["wave_height"],            # 파고
 
     # 중기 예보 필드명 매핑
     "rnSt4Am": ["precipitation_probability_4_am"],
