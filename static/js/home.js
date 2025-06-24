@@ -600,7 +600,9 @@
           const t = Object.keys(data.ultra).sort()[0], info = data.ultra[t];
           c.innerHTML = `<h2 class="font-bold mb-1">${t.slice(0,4)}-${t.slice(4,6)}-${t.slice(6,8)} ${t.slice(8,10)}:${t.slice(10,12)}</h2>` +
                         `<p class="text-sm">온도: ${info.temperature ?? '-'}°C</p>` +
-                        `<p class="text-sm">풍속: ${info.wind_speed ?? '-'} m/s</p>`;
+                        `<p class="text-sm">풍속: ${info.wind_speed ?? '-'} m/s</p>` +
+                        `<p class="text-sm">강수확률: ${info.precipitation_probability ?? '-'}%</p>` +
+                        `<p class="text-sm">파고: ${info.wave_height ?? '-'} m</p>`;
         } else c.innerHTML = '<p class="text-red-500 text-sm">초단기 데이터 없음</p>';
       }).catch(_=>document.getElementById(id).innerHTML='<p class="text-red-500 text-sm">초단기 로드 실패</p>');
     }
@@ -615,7 +617,8 @@
             c.innerHTML = `<h2 class="font-bold mb-1">${dt.slice(0,4)}-${dt.slice(4,6)}-${dt.slice(6,8)} ${dt.slice(8,10)}:${dt.slice(10,12)}</h2>` +
                           `<p class="text-sm">온도: ${info.temperature ?? '-'}°C</p>` +
                           `<p class="text-sm">강수확률: ${info.precipitation_probability ?? '-'}%</p>` +
-                          `<p class="text-sm">풍속: ${info.wind_speed ?? '-'} m/s</p>`;
+                          `<p class="text-sm">풍속: ${info.wind_speed ?? '-'} m/s</p>` +
+                          `<p class="text-sm">파고: ${info.wave_height ?? '-'} m</p>`;
             return;
           }
         }
@@ -649,7 +652,7 @@
       const container = document.getElementById(containerId);
       container.innerHTML = '';
       fetch(`/api/weather?lat=${lat}&lng=${lng}`).then(r=>r.json()).then(data=>{
-        const list = data.short || data.ultra || {};
+        const list = { ...(data.ultra || {}), ...(data.short || {}) };
         Object.entries(list).sort(([a],[b])=>a.localeCompare(b)).slice(0,6).forEach(([dt,info])=>{
           const hour = dt.slice(8,10), temp = info.temperature ?? '-', pop = info.precipitation_probability ?? info.precipitation ?? 0;
           let icon = 'fas fa-sun';
